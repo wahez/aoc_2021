@@ -1,5 +1,7 @@
+use itertools::Itertools;
 use std::io::BufRead;
 use std::marker::PhantomData;
+use std::str::FromStr;
 
 pub trait FromBufRead: Sized {
     type Error;
@@ -27,4 +29,10 @@ impl<'a, BR: 'a + BufRead, T: FromBufRead> Iterator for ParseIter<'a, BR, T> {
             Ok(_) => Some(T::read(self.buf_read)),
         }
     }
+}
+
+pub fn parse_by_line<T: FromStr>(
+    buf: impl BufRead,
+) -> impl Iterator<Item = Result<Result<T, T::Err>, std::io::Error>> {
+    buf.lines().map_ok(|l| T::from_str(&l))
 }
