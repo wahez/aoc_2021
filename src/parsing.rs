@@ -36,3 +36,23 @@ pub fn parse_by_line<T: FromStr>(
 ) -> impl Iterator<Item = Result<Result<T, T::Err>, std::io::Error>> {
     buf.lines().map_ok(|l| T::from_str(&l))
 }
+
+// this macro will only be able to parse a regex with a fixed number of (non-optional) groups.
+// it doesn't work with &str and is inefficient with String
+#[macro_export]
+macro_rules! regex_parse {
+    ($reg:ident, $text:ident, ($($t:ty),+)) => {
+        match $reg.captures($text) {
+            None => None,
+            Some(captures) => {
+                // if any 'unwrap' panics, there is a logic error in the code or the regex
+                let mut iter = captures.iter().skip(1).map(|m| m.unwrap().as_str());
+                let mut wrap = || -> Result<($($t),+), Box<dyn Error>> {
+                    let result: ($($t),+) = ($((iter.next().unwrap().parse::<$t>()?)),+);
+                    Ok(result)
+                };
+                Some(wrap())
+            }
+        }
+    };
+}

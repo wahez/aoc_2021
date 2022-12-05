@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "advent_of_rust_2021"
+name = "advent_of_rust_2022"
 version = "0.1.0"
 dependencies = [
  "itertools",

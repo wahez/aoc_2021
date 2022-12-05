@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::{error::Error, time::Instant};
 
 use runner::Runner;
 
@@ -9,15 +9,22 @@ mod q03;
 mod q04;
 mod runner;
 
+macro_rules! run {
+    ($runner:ident $mod:ident) => {
+        let name = stringify!($mod);
+        $runner.run_test(&format!("{name}::a"), $mod::a, &format!("{name}.real"));
+        $runner.run_test(&format!("{name}::b"), $mod::b, &format!("{name}.real"));
+    };
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let runner = Runner::with_data_dir("data")?;
-    runner.run_test("q01::a", q01::a, "q01.real");
-    runner.run_test("q01::b", q01::b, "q01.real");
-    runner.run_test("q02::a", q02::a, "q02.real");
-    runner.run_test("q02::b", q02::b, "q02.real");
-    runner.run_test("q03::a", q03::a, "q03.real");
-    runner.run_test("q03::b", q03::b, "q03.real");
-    runner.run_test("q04::a", q04::a, "q04.real");
-    runner.run_test("q04::b", q04::b, "q04.real");
+    let start = Instant::now();
+    run!(runner q01);
+    run!(runner q02);
+    run!(runner q03);
+    run!(runner q04);
+    let elapsed = start.elapsed();
+    println!("Ran all puzzles in {}ms", elapsed.as_millis());
     Ok(())
 }

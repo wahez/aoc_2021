@@ -1,9 +1,8 @@
-use std::{error::Error, io::BufRead, ops::RangeInclusive, str::FromStr};
-
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::{error::Error, io::BufRead, ops::RangeInclusive, str::FromStr};
 
-use crate::parsing::parse_by_line;
+use crate::{parsing::parse_by_line, regex_parse};
 
 struct RangePair {
     left: RangeInclusive<i32>,
@@ -28,14 +27,14 @@ impl FromStr for RangePair {
         lazy_static! {
             static ref REGEX: Regex = Regex::new(r"^(\d+)-(\d+),(\d+)-(\d+)$").unwrap();
         }
-        let Some(captures) = REGEX.captures(s) else {
-            return Err("Range pair did not match".into());
-        };
-        let get_match = |i| captures.get(i).unwrap().as_str().parse();
-        Ok(RangePair {
-            left: RangeInclusive::new(get_match(1)?, get_match(2)?),
-            right: RangeInclusive::new(get_match(3)?, get_match(4)?),
-        })
+        match regex_parse!(REGEX, s, (i32, i32, i32, i32)) {
+            None => Err("Range pair did not match".into()),
+            Some(Err(e)) => Err(e),
+            Some(Ok((s1, e1, s2, e2))) => Ok(RangePair {
+                left: RangeInclusive::new(s1, e1),
+                right: RangeInclusive::new(s2, e2),
+            }),
+        }
     }
 }
 

@@ -7,6 +7,7 @@ use std::{
     io::BufRead,
     io::BufReader,
     path::{Path, PathBuf},
+    time::Instant,
 };
 
 pub struct Runner {
@@ -41,16 +42,20 @@ impl Runner {
             return;
         };
         let input = BufReader::new(input_file);
+        let start = Instant::now();
         let result = func(input);
+        let elapsed = start.elapsed();
         let name = format!("{name} {}", full_path.display());
         match result {
-            Err(e) => println!("{name} had an error: {e}"),
+            Err(e) => eprintln!("{name} had an error: {e}"),
             Ok(r) => {
                 let result = format!("{r}");
                 match self.answers.get(&name) {
                     None => println!("{name} {result}"),
-                    Some(a) if *a == result => println!("{name} solved"),
-                    Some(a) => println!("{name} computed {result}, expected {a}"),
+                    Some(a) if *a == result => {
+                        println!("{name} solved in {}us", elapsed.as_micros())
+                    }
+                    Some(a) => eprintln!("{name} computed {result}, expected {a}"),
                 }
             }
         }
