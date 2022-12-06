@@ -22,6 +22,7 @@ impl Runner {
         let buf_read = BufReader::new(File::open(path)?);
         let answers = buf_read
             .lines()
+            .filter_ok(|line| !line.is_empty())
             .map_ok(|line| {
                 let (func, input, answer) = line.splitn(3, ' ').tuples().next().unwrap();
                 (format!("{func} {input}"), answer.to_string())
