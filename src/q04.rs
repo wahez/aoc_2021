@@ -4,14 +4,14 @@ use std::{error::Error, io::BufRead, ops::RangeInclusive, str::FromStr};
 
 use crate::{parsing::parse_by_line, regex_parse};
 
-struct RangePair {
-    left: RangeInclusive<i32>,
-    right: RangeInclusive<i32>,
+struct RangePair<T> {
+    left: RangeInclusive<T>,
+    right: RangeInclusive<T>,
 }
 
-impl RangePair {
+impl<T: PartialOrd> RangePair<T> {
     fn one_included_in_other(&self) -> bool {
-        let contains = |r1: &RangeInclusive<i32>, r2: &RangeInclusive<i32>| {
+        let contains = |r1: &RangeInclusive<T>, r2: &RangeInclusive<T>| {
             r1.contains(r2.start()) && r1.contains(r2.end())
         };
         contains(&self.left, &self.right) || contains(&self.right, &self.left)
@@ -21,7 +21,8 @@ impl RangePair {
     }
 }
 
-impl FromStr for RangePair {
+impl FromStr for RangePair<i32> {
+    // also works for other integers, but no trait to restrict that
     type Err = Box<dyn Error>;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         lazy_static! {
@@ -40,7 +41,7 @@ impl FromStr for RangePair {
 
 pub fn a(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
     let mut count = 0;
-    for pair in parse_by_line::<RangePair>(buf) {
+    for pair in parse_by_line::<RangePair<i32>>(buf) {
         if pair??.one_included_in_other() {
             count += 1;
         }
@@ -50,7 +51,7 @@ pub fn a(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
 
 pub fn b(buf: impl BufRead) -> Result<i32, Box<dyn Error>> {
     let mut count = 0;
-    for pair in parse_by_line::<RangePair>(buf) {
+    for pair in parse_by_line::<RangePair<i32>>(buf) {
         if pair??.has_overlap() {
             count += 1;
         }
