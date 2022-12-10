@@ -12,6 +12,7 @@ mod q06;
 mod q07;
 mod q08;
 mod q09;
+mod q10;
 mod runner;
 
 macro_rules! run {
@@ -33,8 +34,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     run!(runner q06);
     run!(runner q07);
     run!(runner q08);
-    // runner.run_test("test", q09::a, "test");
     run!(runner q09);
+    run!(runner q10);
+    // runner.run_test("test", q10::b, "test");
     let elapsed = start.elapsed();
     println!("Ran all puzzles in {}ms", elapsed.as_millis());
     Ok(())
