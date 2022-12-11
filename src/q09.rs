@@ -1,14 +1,8 @@
-use std::{
-    error::Error,
-    io::BufRead,
-    ops::{AddAssign, Sub},
-    str::FromStr,
-};
+use std::{error::Error, io::BufRead, str::FromStr};
 
 use crate::parsing::parse_by_line;
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
-struct Pos(i32, i32);
+type Pos = crate::pos::Pos<i32>;
 
 struct Move {
     direction: Pos,
@@ -22,10 +16,10 @@ impl FromStr for Move {
             None => Err("No space in instruction".into()),
             Some((l, r)) => {
                 let direction = match l {
-                    "D" => Pos(0, -1),
-                    "L" => Pos(-1, 0),
-                    "R" => Pos(1, 0),
-                    "U" => Pos(0, 1),
+                    "D" => Pos { x: 0, y: -1 },
+                    "L" => Pos { x: -1, y: 0 },
+                    "R" => Pos { x: 1, y: 0 },
+                    "U" => Pos { x: 0, y: 1 },
                     _ => Err("Could not parse Direction")?,
                 };
                 Ok(Move {
@@ -34,20 +28,6 @@ impl FromStr for Move {
                 })
             }
         }
-    }
-}
-
-impl AddAssign<&Pos> for Pos {
-    fn add_assign(&mut self, rhs: &Pos) {
-        self.0 += rhs.0;
-        self.1 += rhs.1;
-    }
-}
-
-impl Sub<&Pos> for &Pos {
-    type Output = Pos;
-    fn sub(self, rhs: &Pos) -> Self::Output {
-        Pos(self.0 - rhs.0, self.1 - rhs.1)
     }
 }
 
@@ -62,18 +42,21 @@ impl Pos {
         }
     }
     fn abs2(&self) -> i32 {
-        let a = self.0;
-        let b = self.1;
+        let a = self.x;
+        let b = self.y;
         a * a + b * b
     }
     fn signum(&self) -> Pos {
-        Pos(self.0.signum(), self.1.signum())
+        Pos {
+            x: self.x.signum(),
+            y: self.y.signum(),
+        }
     }
 }
 
 pub fn a(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
-    let mut head = Pos(0, 0);
-    let mut tail = Pos(0, 0);
+    let mut head = Pos::default();
+    let mut tail = Pos::default();
     let mut history = Vec::new();
     history.push(tail);
     for mov in parse_by_line::<Move>(buf) {
@@ -91,7 +74,7 @@ pub fn a(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
 }
 
 pub fn b(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
-    let mut knots = [Pos(0, 0); 10];
+    let mut knots = [Pos::default(); 10];
     let mut history = Vec::new();
     history.push(knots[9]);
     for mov in parse_by_line::<Move>(buf) {
