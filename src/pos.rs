@@ -1,6 +1,6 @@
 use std::ops::{Add, AddAssign, Sub};
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub struct Pos<T> {
     pub x: T,
     pub y: T,

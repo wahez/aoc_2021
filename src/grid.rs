@@ -5,6 +5,7 @@ use std::{
 
 use crate::pos::Pos;
 
+#[derive(Clone)]
 pub struct Grid<T, PT> {
     values: Vec<T>,
     size: Pos<PT>,
@@ -29,6 +30,13 @@ impl<T: Clone> Grid<T, i16> {
             values: vec![value; size.x as usize * size.y as usize],
             size,
         }
+    }
+}
+
+impl<T> Grid<T, i16> {
+    pub unsafe fn get_unchecked(&self, index: &Pos<i16>) -> &T {
+        self.values
+            .get_unchecked(index.x as usize + index.y as usize * self.size.x as usize)
     }
 }
 
