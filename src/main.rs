@@ -3,6 +3,7 @@ use std::{error::Error, time::Instant};
 use runner::Runner;
 
 mod grid;
+mod optimize;
 mod parsing;
 mod pos;
 mod q01;
@@ -20,6 +21,7 @@ mod q12;
 mod q13;
 mod q14;
 mod q15;
+mod q16;
 mod runner;
 
 macro_rules! run {
@@ -48,7 +50,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     run!(runner q13);
     run!(runner q14);
     run!(runner q15);
-    // runner.run_test("test", q15::a, "test");
+    run!(runner q16);
+    // runner.run_test("test", q16::a, "q16.test");
     let elapsed = start.elapsed();
     println!("Ran all puzzles in {}ms", elapsed.as_millis());
     Ok(())
