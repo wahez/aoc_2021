@@ -1,5 +1,11 @@
-use std::{cmp::Reverse, error::Error, io::BufRead, str::FromStr};
+use std::{
+    collections::{hash_map::Entry, HashMap},
+    error::Error,
+    io::BufRead,
+    str::FromStr,
+};
 
+use bitvec::prelude::BitArray;
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -48,7 +54,7 @@ struct Runner {
 struct State {
     runners: [Runner; 2],
     projected_release: i32,
-    unopened_valves: Vec<usize>,
+    unopened_valves: BitArray,
 }
 
 struct Problem {
@@ -59,7 +65,7 @@ struct Problem {
 impl Optimize for Problem {
     type State = State;
     type StateValue = i32;
-    type Solutions = ();
+    type Solutions = HashMap<(BitArray, [usize; 2]), Vec<([i32; 2], i32)>>;
 
     fn guaranteed(&self, state: &Self::State) -> Self::StateValue {
         state.projected_release
@@ -69,7 +75,7 @@ impl Optimize for Problem {
         // calculate upper bound for potential release by assuming that every valve can be reached in 1 step
         // this assumes that they are sorted in reverse already
         let mut time_left = [state.runners[0].time_left, state.runners[1].time_left];
-        for v in state.unopened_valves.iter() {
+        for v in state.unopened_valves.iter_ones() {
             let tl = if time_left[0] > time_left[1] {
                 time_left[0] -= 1;
                 time_left[0]
@@ -80,7 +86,7 @@ impl Optimize for Problem {
             match tl {
                 -1 => break,
                 0 => {}
-                t => potential_release += t * self.valves[*v].flow_rate,
+                t => potential_release += t * self.valves[v].flow_rate,
             }
         }
         potential_release
@@ -89,17 +95,17 @@ impl Optimize for Problem {
         next.extend(
             state
                 .unopened_valves
-                .iter()
+                .iter_ones()
                 .map(|v| {
                     let mut runners = state.runners.clone();
                     let runner = runners.iter_mut().max_by_key(|r| r.time_left).unwrap(); // unwrap will not fail, there are two
-                    let duration = self.shortest_paths[runner.position][*v];
+                    let duration = self.shortest_paths[runner.position][v];
                     runner.time_left = runner.time_left - duration - 1;
-                    runner.position = *v;
+                    runner.position = v;
                     let projected_release =
-                        state.projected_release + runner.time_left * self.valves[*v].flow_rate;
-                    let mut unopened_valves = state.unopened_valves.clone();
-                    unopened_valves.remove(unopened_valves.iter().position(|u| u == v).unwrap()); // unwrap cannot fail
+                        state.projected_release + runner.time_left * self.valves[v].flow_rate;
+                    let mut unopened_valves = state.unopened_valves;
+                    unopened_valves.set(v, false);
                     State {
                         runners,
                         projected_release,
@@ -108,6 +114,30 @@ impl Optimize for Problem {
                 })
                 .filter(|s| s.runners.iter().all(|r| r.time_left >= 0)),
         );
+    }
+    fn add_if_improvement(&self, solutions: &mut Self::Solutions, state: &Self::State) -> bool {
+        let key = (
+            state.unopened_valves,
+            [state.runners[0].position, state.runners[1].position],
+        );
+        let value = (
+            [state.runners[0].time_left, state.runners[1].time_left],
+            state.projected_release,
+        );
+        match solutions.entry(key) {
+            Entry::Vacant(e) => {
+                e.insert(vec![value]);
+                true
+            }
+            Entry::Occupied(mut v) => {
+                if v.get().iter().any(|s| s > &value) {
+                    v.get_mut().push(value);
+                    false
+                } else {
+                    true
+                }
+            }
+        }
     }
 }
 
@@ -135,13 +165,10 @@ fn solve_for_most_pressure(valves: Vec<Valve>, time_left: [i32; 2]) -> Result<i3
             }
         }
     }
-    let mut unopened_valves: Vec<usize> = valves
-        .iter()
-        .enumerate()
-        .filter(|(_i, v)| v.flow_rate > 0)
-        .map(|(i, _v)| i)
-        .collect();
-    unopened_valves.sort_by_key(|v| Reverse(valves[*v].flow_rate));
+    let mut unopened_valves = BitArray::new([0usize; 1]);
+    for (i, _valve) in valves.iter().enumerate().filter(|(_i, v)| v.flow_rate > 0) {
+        unopened_valves.set(i, true);
+    }
     let problem = Problem {
         valves,
         shortest_paths,

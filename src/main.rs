@@ -51,7 +51,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     run!(runner q14);
     run!(runner q15);
     run!(runner q16);
-    // runner.run_test("test", q16::a, "q16.test");
     let elapsed = start.elapsed();
     println!("Ran all puzzles in {}ms", elapsed.as_millis());
     Ok(())

@@ -9,6 +9,7 @@ edition = "2021"
 debug = true
 
 [dependencies]
+bitvec = "1.0.1"
 itertools = "0.10.5"
 lazy_static = "1.4.0"
 regex = "1.7.0"
