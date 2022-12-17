@@ -129,7 +129,15 @@ pub fn b(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
         .try_collect::<Result<_, _>, Result<_, _>, _>();
     let mut packets: Vec<Packet> = packets??;
     packets.sort();
-    let pos1 = packets.binary_search(&"[[2]]".parse()?).err().unwrap() + 1;
-    let pos2 = packets.binary_search(&"[[6]]".parse()?).err().unwrap() + 2;
+    let pos1 = packets
+        .binary_search(&"[[2]]".parse()?)
+        .err()
+        .ok_or("Could not find 2")?
+        + 1;
+    let pos2 = packets
+        .binary_search(&"[[6]]".parse()?)
+        .err()
+        .ok_or("Could not find 6")?
+        + 2;
     Ok(pos1 * pos2)
 }

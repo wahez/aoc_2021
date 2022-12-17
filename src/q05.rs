@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::{error::Error, io::BufRead, mem::swap, str::FromStr};
+use std::{error::Error, io::BufRead, mem::take, str::FromStr};
 
 use crate::{
     parsing::{parse_by_line, FromBufRead},
@@ -74,8 +74,7 @@ impl RowOfStacksOfCrates {
         Ok(())
     }
     fn move_crate_group(&mut self, instruction: &Instruction) {
-        let mut from_row = Vec::new();
-        swap(&mut from_row, &mut self.0[instruction.from - 1]);
+        let mut from_row = take(&mut self.0[instruction.from - 1]);
         let new_len = from_row.len() - instruction.amount;
         self.0[instruction.to - 1].extend_from_slice(&from_row[new_len..]);
         from_row.truncate(new_len);

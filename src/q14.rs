@@ -156,17 +156,17 @@ impl FromBufRead for Cave {
             .iter()
             .flat_map(|rock| rock.0.iter().map(|p| p.x))
             .min()
-            .unwrap();
+            .ok_or("Too few rocks")?;
         let maxx = rocks
             .iter()
             .flat_map(|rock| rock.0.iter().map(|p| p.x))
             .max()
-            .unwrap();
+            .ok_or("Too few rocks")?;
         let maxy = rocks
             .iter()
             .flat_map(|rock| rock.0.iter().map(|p| p.y))
             .max()
-            .unwrap();
+            .ok_or("Too few rocks")?;
         let min = Pos {
             x: minx - maxy - 10,
             y: 0,

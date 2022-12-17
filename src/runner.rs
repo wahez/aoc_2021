@@ -24,7 +24,11 @@ impl Runner {
             .lines()
             .filter_ok(|line| !line.is_empty())
             .map_ok(|line| {
-                let (func, input, answer) = line.splitn(3, ' ').tuples().next().unwrap();
+                let (func, input, answer) = line
+                    .splitn(3, ' ')
+                    .tuples()
+                    .next()
+                    .expect("Could not read answers");
                 (format!("{func} {input}"), answer.to_string())
             })
             .try_collect()?;

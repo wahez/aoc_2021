@@ -24,7 +24,7 @@ impl<T: Ord + Clone> RingBufferWithSort<T> {
     }
     fn pop_front(&mut self) -> Option<T> {
         self.queue.pop_front().map(|old| {
-            let old_pos = self.sorted.binary_search(&old).unwrap();
+            let old_pos = self.sorted.binary_search(&old).unwrap(); // unwrap is guaranteed to not fail because it was in the queue
             self.sorted.remove(old_pos);
             old
         })

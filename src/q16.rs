@@ -92,14 +92,14 @@ impl Optimize for Problem {
                 .iter()
                 .map(|v| {
                     let mut runners = state.runners.clone();
-                    let runner = runners.iter_mut().max_by_key(|r| r.time_left).unwrap();
+                    let runner = runners.iter_mut().max_by_key(|r| r.time_left).unwrap(); // unwrap will not fail, there are two
                     let duration = self.shortest_paths[runner.position][*v];
                     runner.time_left = runner.time_left - duration - 1;
                     runner.position = *v;
                     let projected_release =
                         state.projected_release + runner.time_left * self.valves[*v].flow_rate;
                     let mut unopened_valves = state.unopened_valves.clone();
-                    unopened_valves.remove(unopened_valves.iter().position(|u| u == v).unwrap());
+                    unopened_valves.remove(unopened_valves.iter().position(|u| u == v).unwrap()); // unwrap cannot fail
                     State {
                         runners,
                         projected_release,
@@ -116,7 +116,7 @@ fn solve_for_most_pressure(valves: Vec<Valve>, time_left: [i32; 2]) -> Result<i3
     let mut shortest_paths = vec![vec![UNREACHABLE; valves.len()]; valves.len()];
     for (number, valve) in valves.iter().enumerate() {
         for destination in valve.destination_names.iter() {
-            let dest = valves.iter().position(|v| v.name == *destination).unwrap();
+            let dest = valves.iter().position(|v| v.name == *destination).unwrap(); // unwrap cannot fail
             shortest_paths[number][dest] = 1;
         }
     }

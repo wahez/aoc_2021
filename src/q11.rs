@@ -98,7 +98,9 @@ pub fn a(mut buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
     }
     let mut activity: Vec<_> = monkeys.iter().map(|m| m.inspected).collect();
     activity.sort(); // Could do select_nth, but the number of monkeys is small
-    Ok(activity.pop().unwrap() * activity.pop().unwrap())
+    let a1 = activity.pop().ok_or("Too few activities")?;
+    let a2 = activity.pop().ok_or("Too few activities")?;
+    Ok(a1 * a2)
 }
 
 pub fn b(mut buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
@@ -116,5 +118,7 @@ pub fn b(mut buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
     }
     let mut activity: Vec<_> = monkeys.iter().map(|m| m.inspected).collect();
     activity.sort(); // Could do select_nth, but the number of monkeys is small
-    Ok(activity.pop().unwrap() * activity.pop().unwrap())
+    let a1 = activity.pop().ok_or("Too few activities")?;
+    let a2 = activity.pop().ok_or("Too few activities")?;
+    Ok(a1 * a2)
 }

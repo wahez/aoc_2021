@@ -17,11 +17,10 @@ impl FromBufRead for Grid {
 }
 
 impl Grid {
-    fn get_highest_scenic_score(&self) -> usize {
+    fn get_highest_scenic_score(&self) -> Option<usize> {
         iproduct!(0..self.0.len(), 0..self.0[0].len())
             .map(|(r, c)| self.get_scenic_score(r, c))
             .max()
-            .unwrap()
     }
     fn get_scenic_score(&self, row: usize, col: usize) -> usize {
         let height = self.0[row][col];
@@ -64,5 +63,7 @@ pub fn a(mut buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
 }
 
 pub fn b(mut buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
-    Ok(Grid::read(&mut buf)?.get_highest_scenic_score())
+    Grid::read(&mut buf)?
+        .get_highest_scenic_score()
+        .ok_or_else(|| "Grid is empty".into())
 }

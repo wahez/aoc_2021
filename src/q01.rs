@@ -30,10 +30,8 @@ impl FromBufRead for Elf {
 }
 
 pub fn a(mut buf: impl BufRead) -> Result<i32, Box<dyn Error>> {
-    let max_calories = Elf::read_iter(&mut buf)
-        .map_ok(|elf| elf.total_calories())
-        .max_by_key(|calories| (calories.is_err(), *calories.as_ref().unwrap_or(&0)))
-        .ok_or("No elves read from file")??;
+    let max_calories =
+        Elf::read_iter(&mut buf).fold_ok(0, |f, elf| std::cmp::max(f, elf.total_calories()))?;
     Ok(max_calories)
 }
 
