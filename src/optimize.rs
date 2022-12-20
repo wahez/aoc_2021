@@ -42,7 +42,7 @@ pub trait Optimize {
     }
 }
 
-pub fn optimize<P: Optimize>(problem: P, initial: P::State) -> P::State {
+pub fn optimize<P: Optimize>(problem: &P, initial: P::State) -> P::State {
     let mut queue = BinaryHeap::new();
     queue.push(OrdByFirst(problem.potential(&initial), initial.clone()));
     let mut best_solution = (problem.guaranteed(&initial), initial);

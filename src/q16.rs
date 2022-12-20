@@ -187,7 +187,7 @@ fn solve_for_most_pressure(valves: Vec<Valve>, time_left: [i32; 2]) -> Result<i3
         projected_release: 0,
         unopened_valves,
     };
-    Ok(optimize(problem, initial).projected_release)
+    Ok(optimize(&problem, initial).projected_release)
 }
 
 pub fn a(buf: impl BufRead) -> Result<i32, Box<dyn Error>> {
