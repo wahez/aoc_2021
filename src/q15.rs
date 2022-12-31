@@ -127,7 +127,9 @@ pub fn a(buf: impl BufRead) -> Result<usize, Box<dyn Error>> {
 }
 
 pub fn b(buf: impl BufRead) -> Result<i64, Box<dyn Error>> {
-    let sensors = parse_by_line::<Sensor>(buf).collect::<Result<Result<Vec<Sensor>, _>, _>>()??;
+    let mut sensors =
+        parse_by_line::<Sensor>(buf).collect::<Result<Result<Vec<Sensor>, _>, _>>()??;
+    sensors.sort_by_key(|s| s.center.x);
     let valid_range = 0..4_000_001;
     let mut occupied = Ranges::new();
     for y in valid_range.clone() {
