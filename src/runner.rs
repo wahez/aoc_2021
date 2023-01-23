@@ -1,6 +1,7 @@
 use itertools::Itertools;
 use std::{
     collections::HashMap,
+    env::args,
     error::Error,
     fmt::Display,
     fs::File,
@@ -13,6 +14,7 @@ use std::{
 pub struct Runner {
     data_dir: PathBuf,
     answers: HashMap<String, String>,
+    test_to_run: Option<String>,
 }
 
 impl Runner {
@@ -32,7 +34,15 @@ impl Runner {
                 (format!("{func} {input}"), answer.to_string())
             })
             .try_collect()?;
-        Ok(Runner { data_dir, answers })
+        let args: Vec<String> = args().skip(1).collect();
+        if args.len() > 2 {
+            Err("Too many arguments")?;
+        }
+        Ok(Runner {
+            data_dir,
+            answers,
+            test_to_run: args.first().cloned(),
+        })
     }
 
     pub fn run_test<R, E, F>(&self, name: &str, func: F, filename: impl AsRef<Path>)
@@ -41,6 +51,11 @@ impl Runner {
         E: Display,
         F: FnOnce(BufReader<File>) -> Result<R, E>,
     {
+        if let Some(test_to_run) = self.test_to_run.as_ref() {
+            if !name.starts_with(test_to_run) {
+                return;
+            }
+        }
         let full_path = self.data_dir.join(&filename);
         let Ok(input_file) = File::open(&full_path) else {
             eprintln!("Could not open file {}", full_path.display());
