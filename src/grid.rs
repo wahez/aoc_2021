@@ -57,7 +57,7 @@ impl<T: Display> Display for Grid<T, i16> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for line in self.values.chunks(self.size.x as usize) {
             for t in line {
-                write!(f, "{:3}", t)?;
+                write!(f, "{t:3}")?;
             }
             writeln!(f)?;
         }

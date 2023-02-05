@@ -7,22 +7,22 @@ use crate::{parsing::parse_by_line, regex_parse};
 
 #[derive(Clone, Copy, Eq, PartialEq)]
 #[repr(i32)]
-enum RPS {
+enum Rps {
     Rock = 1,
     Paper = 2,
     Scissors = 3,
 }
 
-impl RPS {
+impl Rps {
     fn score(&self) -> i32 {
         *self as i32
     }
 }
 
-impl FromStr for RPS {
+impl FromStr for Rps {
     type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use RPS::*;
+        use Rps::*;
         match s {
             "A" => Ok(Rock),
             "B" => Ok(Paper),
@@ -46,16 +46,16 @@ impl GameResult {
     }
 }
 
-fn partial_parse(line: &str) -> Result<(RPS, char), Box<dyn Error>> {
+fn partial_parse(line: &str) -> Result<(Rps, char), Box<dyn Error>> {
     lazy_static! {
         static ref REGEX: Regex = Regex::new(r"^([ABC]) ([XYZ])$").unwrap();
     }
-    regex_parse!(REGEX, line, (RPS, char)).ok_or("line did not match")?
+    regex_parse!(REGEX, line, (Rps, char)).ok_or("line did not match")?
 }
 
 struct Game {
-    player1: RPS,
-    player2: RPS,
+    player1: Rps,
+    player2: Rps,
 }
 
 impl Game {
@@ -75,7 +75,7 @@ impl FromStr for Game {
     type Err = Box<dyn Error>;
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let (player1, p2) = partial_parse(line)?;
-        use RPS::*;
+        use Rps::*;
         let player2 = match p2 {
             'X' => Rock,
             'Y' => Paper,
@@ -96,14 +96,14 @@ pub fn a(buf: impl BufRead) -> Result<i32, Box<dyn Error>> {
 }
 
 struct ExpectedGame {
-    player1: RPS,
+    player1: Rps,
     result: GameResult,
 }
 
 impl ExpectedGame {
-    fn player2(&self) -> RPS {
+    fn player2(&self) -> Rps {
         use GameResult::*;
-        use RPS::*;
+        use Rps::*;
         match self.result {
             Draw => self.player1,
             Player1Win => match self.player1 {

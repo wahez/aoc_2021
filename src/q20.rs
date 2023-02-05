@@ -36,7 +36,7 @@ impl NumberList {
             .ok_or("No 0 found")?;
         Ok(indices
             .iter()
-            .map(|i| self.numbers[(zero_pos + i) % self.numbers.len() as usize].n)
+            .map(|i| self.numbers[(zero_pos + i) % self.numbers.len()].n)
             .sum())
     }
 }

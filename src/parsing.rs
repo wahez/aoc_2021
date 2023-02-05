@@ -25,7 +25,7 @@ impl<'a, BR: 'a + BufRead, T: FromBufRead> Iterator for ParseIter<'a, BR, T> {
     fn next(&mut self) -> Option<Self::Item> {
         match self.buf_read.fill_buf() {
             Err(_) => None,
-            Ok(d) if d.is_empty() => None,
+            Ok(&[]) => None,
             Ok(_) => Some(T::read(self.buf_read)),
         }
     }

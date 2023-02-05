@@ -98,7 +98,7 @@ impl Monkeys {
     }
 
     fn solve(&self, name: &str) -> Result<i64, &'static str> {
-        match &self.definitions.get(name).ok_or("Could not find monkey")? {
+        match self.definitions.get(name).ok_or("Could not find monkey")? {
             Shout::Equal((lmonkey, rmonkey)) => {
                 Ok(self.solve(lmonkey).or_else(|_| self.solve(rmonkey))?)
             }
